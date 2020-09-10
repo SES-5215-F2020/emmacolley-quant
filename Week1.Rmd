@@ -66,7 +66,7 @@ Finally, I used the filter command to show Gross Rent as a Percentage of Househo
 There are 4,021 observations.
 
 
-```{r load household-level data, results = 'hide'}
+```{r load household-level data, results = 'hide', message = FALSE}
 hh_data <- get_pums(variables = c("FINCP",
                                       "GRNTP",
                                       "GRPIP",
