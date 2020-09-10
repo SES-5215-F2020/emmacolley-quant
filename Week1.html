@@ -369,45 +369,39 @@ summary {
 </div>
 
 
-<div id="rent-burden-in-massachusetts" class="section level1">
-<h1>Rent Burden in Massachusetts</h1>
-<p>This data set aims to compare Gross Rent as a Percentage of Household Income to other variables. I have more than five variables and hope to refine them in the coming weeks.</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>I am interested in studying rent burden in Massachusetts, so this data set aims to compare Gross Rent as a Percentage of Household Income to five other variables.</p>
+</div>
 <div id="unit-of-analysis" class="section level2">
 <h2>Unit of Analysis</h2>
-<p>The unit of analysis is person-level data from the 2018 American Community Survey.</p>
+<p>The unit of analysis is household-level data from the 2018 American Community Survey.</p>
+<p>Initially, I wanted to study Gross Rent as a Percentage of Household Income (which is household-level data) in conjunction with person-level data to formulate household-level hypotheses. In order to do this I would need to derive a household-level variable from my person-level variables and collapse the data to the household level using the group_by and summarize functions. I aim to do this in Assignment 2 in order to bring in variables such as Race and Education Level. For now, I am sticking to household-level data only.</p>
 </div>
 <div id="definition-of-sample-population" class="section level2">
 <h2>Definition of Sample Population</h2>
-<p>The definition of the sample population is residents of the state of Massachusetts age 18 or older.</p>
+<p>The definition of the sample population is rental households in the state of Massachusetts who spend 30% or more of their household income on rent. I used 30% because this is the percentage HUD uses to define cost-burdened families.</p>
 </div>
 <div id="definition-of-variables" class="section level2">
 <h2>Definition of Variables</h2>
+<p>I selected four continuous variables and two categorical variables as shown below.</p>
 <p><em>Continuous</em></p>
 <ol style="list-style-type: decimal">
 <li>Family Income (FINCP)</li>
 <li>Gross Monthly Rent (GRNTP)</li>
 <li>Gross Rent as Percentage of Household Income (GRPIP)</li>
-<li>Age (AGEP)</li>
+<li>Number of People in Household (NP)</li>
 </ol>
 <p><em>Categorical</em></p>
 <ol style="list-style-type: decimal">
-<li>Sex (SEX)</li>
-<li>Education Level (SCHL)</li>
-<li>Race (RAC1P)</li>
+<li>Limited English Speaking Household (LNGI)</li>
+<li>Grandparent Headed Household with no Parent (NPP)</li>
 </ol>
 </div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
 <pre class="r"><code>library(tidycensus)
 library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages --------------------------------------------------------------------------------------------- tidyverse 1.3.0 --</code></pre>
-<pre><code>## v ggplot2 3.3.2     v purrr   0.3.4
-## v tibble  3.0.3     v dplyr   1.0.2
-## v tidyr   1.1.2     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.5.0</code></pre>
-<pre><code>## -- Conflicts ------------------------------------------------------------------------------------------------ tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
 <pre class="r"><code>person_vars_2018 &lt;- pums_variables %&gt;%
   distinct(year, survey, var_code, 
            var_label, data_type, level) %&gt;%
@@ -419,45 +413,48 @@ library(tidyverse)</code></pre>
 </div>
 <div id="defining-variables" class="section level2">
 <h2>Defining Variables</h2>
-<pre class="r"><code>person_data &lt;- get_pums(variables = c(&quot;FINCP&quot;,
+<p>In order to include only renters, I used the filter command to find rent payments greater than zero. I referenced my classmate Aron Lesser’s code for this. I did the same for Family Income because I was initially receiving many incomes less than zero.</p>
+<p>Finally, I used the filter command to show Gross Rent as a Percentage of Household Income greater than 29% and less than 101% to look at only rent burdened households.</p>
+<p>There are 4,021 observations.</p>
+<pre class="r"><code>hh_data &lt;- get_pums(variables = c(&quot;FINCP&quot;,
                                       &quot;GRNTP&quot;,
                                       &quot;GRPIP&quot;,
-                                      &quot;SEX&quot;,
-                                      &quot;AGEP&quot;, 
-                                      &quot;SCHL&quot;, 
-                                      &quot;RAC1P&quot;),
+                                      &quot;NP&quot;,
+                                      &quot;LNGI&quot;, 
+                                      &quot;NPP&quot;),
                         state = &quot;MA&quot;, 
-                        year = 2018, 
+                        year = 2018,
                         survey = &quot;acs1&quot;,
                         recode = TRUE) %&gt;%
   filter(GRNTP &gt; 0) %&gt;%
   filter(FINCP &gt; 0) %&gt;%
-  filter(AGEP &gt; 17) %&gt;%
-  select(FINCP, GRNTP, GRPIP, SEX_label, AGEP, SCHL_label, RAC1P_label)</code></pre>
+  filter(GRPIP &gt; 29) %&gt;%
+  filter(GRPIP &lt; 101) %&gt;%
+  select(FINCP, GRNTP, GRPIP, NP, LNGI_label, NPP_label)</code></pre>
 <pre><code>## Getting data from the 2018 1-year ACS Public Use Microdata Sample</code></pre>
 </div>
 <div id="first-ten-observations" class="section level2">
 <h2>First Ten Observations</h2>
-<pre class="r"><code>person_data</code></pre>
-<pre><code>## # A tibble: 7,536 x 7
-##     FINCP GRNTP GRPIP SEX_label  AGEP SCHL_label              RAC1P_label       
-##     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;                   &lt;chr&gt;             
-##  1 156000   980     8 Female       49 Bachelor&#39;s degree       Black or African ~
-##  2 156000   980     8 Male         55 Regular high school di~ Black or African ~
-##  3  62000  1770    34 Male         41 1 or more years of col~ American Indian a~
-##  4  62000  1770    34 Female       47 Regular high school di~ White alone       
-##  5 125600  1978    19 Female       52 Some college, but less~ White alone       
-##  6 125600  1978    19 Male         51 GED or alternative cre~ White alone       
-##  7 125600  1978    19 Female       22 Bachelor&#39;s degree       White alone       
-##  8 125600  1978    19 Male         18 Grade 11                White alone       
-##  9  61000  1637    32 Female       50 1 or more years of col~ White alone       
-## 10  20000   450     9 Female       40 1 or more years of col~ Some Other Race a~
-## # ... with 7,526 more rows</code></pre>
+<p>There are 4,021 observations, here are 10.</p>
+<pre class="r"><code>hh_data</code></pre>
+<pre><code>## # A tibble: 4,021 x 6
+##    FINCP GRNTP GRPIP    NP LNGI_label                     NPP_label             
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                          &lt;chr&gt;                 
+##  1 62000  1770    34     2 At least one person in the ho~ Not a grandparent hea~
+##  2 62000  1770    34     2 At least one person in the ho~ Not a grandparent hea~
+##  3 61000  1637    32     2 At least one person in the ho~ Not a grandparent hea~
+##  4 61000  1637    32     2 At least one person in the ho~ Not a grandparent hea~
+##  5 54300  1700    38     5 At least one person in the ho~ Not a grandparent hea~
+##  6 54300  1700    38     5 At least one person in the ho~ Not a grandparent hea~
+##  7 54300  1700    38     5 At least one person in the ho~ Not a grandparent hea~
+##  8 54300  1700    38     5 At least one person in the ho~ Not a grandparent hea~
+##  9 54300  1700    38     5 At least one person in the ho~ Not a grandparent hea~
+## 10 10200   670    79     5 At least one person in the ho~ Not a grandparent hea~
+## # ... with 4,011 more rows</code></pre>
 </div>
 <div id="writing-csv-file" class="section level2">
 <h2>Writing CSV File</h2>
-<pre class="r"><code>write_csv(person_data, &quot;renters_massachusetts.csv&quot;)</code></pre>
-</div>
+<pre class="r"><code>write_csv(hh_data, &quot;renters_massachusetts.csv&quot;)</code></pre>
 </div>
 
 

@@ -6,36 +6,39 @@ output: html_document
 
 ---
 
-# Rent Burden in Massachusetts
+## Introduction
 
-This data set aims to compare Gross Rent as a Percentage of Household Income to other variables. I have more than five variables and hope to refine them in the coming weeks.
+I am interested in studying rent burden in Massachusetts, so this data set aims to compare Gross Rent as a Percentage of Household Income to five other variables.
 
 ## Unit of Analysis
 
-The unit of analysis is person-level data from the 2018 American Community Survey.
+The unit of analysis is household-level data from the 2018 American Community Survey.
+
+Initially, I wanted to study Gross Rent as a Percentage of Household Income (which is household-level data) in conjunction with person-level data to formulate household-level hypotheses. In order to do this I would need to derive a household-level variable from my person-level variables and collapse the data to the household level using the group_by and summarize functions. I aim to do this in Assignment 2 in order to bring in variables such as Race and Education Level. For now, I am sticking to household-level data only.
 
 ## Definition of Sample Population
 
-The definition of the sample population is residents of the state of Massachusetts age 18 or older.
+The definition of the sample population is rental households in the state of Massachusetts who spend 30% or more of their household income on rent. I used 30% because this is the percentage HUD uses to define cost-burdened families.
 
 ## Definition of Variables
+
+I selected four continuous variables and two categorical variables as shown below.
 
 *Continuous*
 
 1. Family Income (FINCP)
 2. Gross Monthly Rent (GRNTP)
 3. Gross Rent as Percentage of Household Income (GRPIP)
-4. Age (AGEP)
+4. Number of People in Household (NP)
   
 *Categorical*
 
-1. Sex (SEX)
-2. Education Level (SCHL)
-3. Race (RAC1P)
+1. Limited English Speaking Household (LNGI)
+2. Grandparent Headed Household with no Parent (NPP)
 
 ## Loading Data
 
-```{r load libraries}
+```{r load libraries, message = FALSE}
 library(tidycensus)
 library(tidyverse)
 ```
@@ -56,33 +59,43 @@ hh_vars_2018 <- pums_variables %>%
 
 ## Defining Variables
 
-```{r load person-level data, results = 'hide'}
-person_data <- get_pums(variables = c("FINCP",
+In order to include only renters, I used the filter command to find rent payments greater than zero. I referenced my classmate Aron Lesser's code for this. I did the same for Family Income because I was initially receiving many incomes less than zero.
+
+Finally, I used the filter command to show Gross Rent as a Percentage of Household Income greater than 29% and less than 101% to look at only rent burdened households.
+
+There are 4,021 observations.
+
+
+```{r load household-level data, results = 'hide'}
+hh_data <- get_pums(variables = c("FINCP",
                                       "GRNTP",
                                       "GRPIP",
-                                      "SEX",
-                                      "AGEP", 
-                                      "SCHL", 
-                                      "RAC1P"),
+                                      "NP",
+                                      "LNGI", 
+                                      "NPP"),
                         state = "MA", 
-                        year = 2018, 
+                        year = 2018,
                         survey = "acs1",
                         recode = TRUE) %>%
   filter(GRNTP > 0) %>%
   filter(FINCP > 0) %>%
-  filter(AGEP > 17) %>%
-  select(FINCP, GRNTP, GRPIP, SEX_label, AGEP, SCHL_label, RAC1P_label)
+  filter(GRPIP > 29) %>%
+  filter(GRPIP < 101) %>%
+  select(FINCP, GRNTP, GRPIP, NP, LNGI_label, NPP_label)
 ```
 
 ## First Ten Observations
+
+There are 4,021 observations, here are 10.
+
 ```{r}
-person_data
+hh_data
 ```
 
 
 ## Writing CSV File
 
 ```{r save dataframes as csv}
-write_csv(person_data, "renters_massachusetts.csv")
+write_csv(hh_data, "renters_massachusetts.csv")
 ```
 
