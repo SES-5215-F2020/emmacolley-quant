@@ -13,6 +13,8 @@ output:
 
 While I kept my overall topic of rent burden in Massachusetts, I changed my variables since last week. In Assignment 1, I was working with household-level data. In Assignment 2 I will be working with person-level data. I did this because there were several person-level categorical variables I was interested in analyzing along side Gross Rent as Percentage of Household Income. So in this study, I am including individuals who live in rent burdened households. All individuals in the sample pay a gross household rent that is 30-100% of their household income. I selected four continuous variables and two categorical variables as shown below.
 
+My biggest hurdle during this assignment was interpreting the histograms. I have no previous experience with statistics and I need to study distributions more closely.
+
 *Continuous*
 
 1. Age of Individual (AGEP)
