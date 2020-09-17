@@ -1,0 +1,394 @@
+---
+title: "Week 2 Assignment"
+author: "Emma Colley"
+date: "9/17/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: lumen
+---
+
+## Definition of Variables
+
+While I kept my overall topic of rent burden in Massachusetts, I changed my variables since last week. In Assignment 1, I was working with household-level data. In Assignment 2 I will be working with person-level data. I did this because there were several person-level categorical variables I was interested in analyzing along side Gross Rent as Percentage of Household Income. So in this study, I am including individuals who live in rent burdened households. All individuals in the sample have a gross household rent that is 30-100% of their household income. I selected four continuous variables and two categorical variables as shown below.
+
+*Continuous*
+
+1. Age of Individual (AGEP)
+2. Number of People in Household (NP)
+3. Annual Household Income (HINCP)
+4. Gross Rent as Percentage of Household Income (GRPIP)
+  
+*Categorical*
+
+1. Race/Ethnicity (RAC1P)
+2. Highest Level of Education Received (SCHL)
+
+## Loading Libraries
+
+```{r load libraries, message = FALSE}
+library(tidycensus)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+```
+
+## Loading Data
+
+```{r, message = FALSE}
+person_data <- read_csv("rent_burden_massachusetts_v2.csv")
+```
+
+# Continuous Variables
+
+## Variable 1: Age of Induvidual (AGEP)
+
+```{r}
+summary(person_data$AGEP)
+paste("The sample mean age is",
+      prettyNum(mean(person_data$AGEP), digits = 0), "years.")
+paste("The sample median age is",
+      prettyNum(median(person_data$AGEP), digits = 0), "years.")
+paste("The sample standard deviation for age is",
+      prettyNum(sd(person_data$AGEP), digits = 0), "years.")
+paste("The sample interquartile range for age is",
+      quantile(person_data$AGEP)["25%"], "to", quantile(person_data$AGEP)["75%"], "years.")
+pop_mean <- t.test(person_data$AGEP)
+pop_mean
+paste("The 95-percent confidence interval for the population mean is",
+      prettyNum(pop_mean$conf.int[1], digits = 0), "to",
+      prettyNum(pop_mean$conf.int[2], digits = 0), "years.")
+```
+```{r}
+ggplot(person_data, aes(x = person_data$AGEP)) + 
+  geom_histogram(color = "gray", binwidth = 2) +
+  theme_bw() +
+  scale_x_continuous(name = "Age(years)") + 
+  scale_y_continuous(name = "Number of people in sample") +
+  annotate("text", x = 50, y = 500, size = 3, 
+           label = paste("Population mean (95% confidence):",
+                         prettyNum(pop_mean$conf.int[1], digits = 0),
+                         "to",
+                         prettyNum(pop_mean$conf.int[2], digits = 0),
+                         "years.",
+                         "\nSample mean:", 
+                         prettyNum(mean(person_data$AGEP), digits = 0), "years.",
+                         "\nSample median:",
+                         prettyNum(median(person_data$AGEP), digits = 0), "years.",
+                         "\nSample standard deviation:",
+                         prettyNum(sd(person_data$AGEP), digits = 0), "years.", 
+                         "\nSample interquartile range:",
+                         prettyNum(quantile(person_data$AGEP)["25%"], digits = 0),
+                         "to",
+                         prettyNum(quantile(person_data$AGEP)["75%"], digits = 0),
+                         "years."),
+           hjust = 0, vjust = 1) 
+```
+
+
+The histogram for age of individual in this sample is fairly uniform but is skewed positively right. More younger people are in this sample. I'm not sure if you can conclude that more young people in Massachusetts live in rent burdened households or just that there are more young people in the larger ACS sample. There appears to be outliers at age 95, perhaps people over the age of 90 were coded at 95 years. I determined this from reviewing Mel Miller's data.
+
+## Variable 2: Number of People in Household (NP)
+
+```{r}
+summary(person_data$NP)
+paste("The sample mean for the number of people in the household is",
+      prettyNum(mean(person_data$NP), digits = 0), "people.")
+paste("The sample median for the number of people in the household is",
+      prettyNum(median(person_data$NP), digits = 0), "people.")
+paste("The sample standard deviation for the number of people in the household is",
+      prettyNum(sd(person_data$NP), digits = 0), "person.")
+paste("The sample interquartile range for the number of people in the household is",
+      quantile(person_data$NP)["25%"], "to", quantile(person_data$NP)["75%"], "persons.")
+pop_mean <- t.test(person_data$NP)
+pop_mean
+paste("The 95-percent confidence interval for the population mean is",
+      prettyNum(pop_mean$conf.int[1], digits = 0), "to",
+      prettyNum(pop_mean$conf.int[2], digits = 0), "persons.")
+```
+```{r}
+ggplot(person_data, aes(x = person_data$NP)) + 
+  geom_histogram(color = "gray", binwidth = 1) +
+  theme_bw() +
+  scale_x_continuous(name = "Number of People in Household", breaks = seq(1, 10, by = 1)) + 
+  scale_y_continuous(name = "Number of people in sample") +
+  annotate("text", x = 10, y = 2000, size = 3, 
+           label = paste("Population mean (95% confidence):",
+                         prettyNum(pop_mean$conf.int[1], digits = 0),
+                         "to",
+                         prettyNum(pop_mean$conf.int[2], digits = 0),
+                         "persons.",
+                         "\nSample mean:", 
+                         prettyNum(mean(person_data$NP), digits = 0), "persons.",
+                         "\nSample median:",
+                         prettyNum(median(person_data$NP), digits = 0), "persons.",
+                         "\nSample standard deviation:",
+                         prettyNum(sd(person_data$NP), digits = 0), "persons.", 
+                         "\nSample interquartile range:",
+                         prettyNum(quantile(person_data$NP)["25%"], digits = 0),
+                         "to",
+                         prettyNum(quantile(person_data$NP)["75%"], digits = 0),
+                         "persons."),
+           hjust = 1, vjust = 1) 
+```
+
+This histogram of Number of People in the Household is also skewed positively to the right.I'm not sure if there is a term to describe the initial plateau where the majority of people in this sample live in households with 1 or 2 people; the mean and median are the same. These last conclusions aren't surprising for a sample in a city (Boston).
+
+## Variable 3: Annual Household Income (HINCP)
+
+```{r}
+summary(person_data$HINCP)
+paste("The sample mean for annual household income is $",
+      prettyNum(mean(person_data$HINCP), digits = 5, na.rm=TRUE))
+paste("The sample median for annual household income is $",
+      prettyNum(median(person_data$HINCP), digits = 5))
+paste("The sample standard deviation for annual household income is $",
+      prettyNum(sd(person_data$HINCP), digits = 5))
+paste("The sample interquartile range for annual household income is $",
+      quantile(person_data$HINCP)["25%"], "to $", quantile(person_data$HINCP)["75%"])
+pop_mean <- t.test(person_data$HINCP)
+pop_mean
+paste("The 95-percent confidence interval for the population mean is $",
+      prettyNum(pop_mean$conf.int[1], digits = 5), "to $",
+      prettyNum(pop_mean$conf.int[2], digits = 5))
+```
+
+```{r}
+ggplot(person_data, aes(x = person_data$HINCP)) +
+  geom_histogram(color = "gray", binwidth = 5000) +
+  theme_bw() +
+  scale_x_continuous(name = "Annual Household Income", breaks = seq(0, 170000, by = 20000)) +
+  scale_y_continuous(name = "Number of people in sample") +
+  annotate("text", x = 170000, y = 450, size = 3, 
+           label = paste("Population mean (95% confidence):",
+                         "$", prettyNum(pop_mean$conf.int[1], digits = 5),
+                         "to $",
+                         prettyNum(pop_mean$conf.int[2], digits = 5),
+                         "\nSample mean:", 
+                         "$", prettyNum(mean(person_data$HINCP), digits = 5),
+                         "\nSample median:",
+                         "$", prettyNum(median(person_data$HINCP), digits = 5),
+                         "\nSample standard deviation:",
+                         "$", prettyNum(sd(person_data$HINCP), digits = 5), 
+                         "\nSample interquartile range:",
+                         "$", prettyNum(quantile(person_data$HINCP)["25%"], digits = 5),
+                         "to",
+                         "$", prettyNum(quantile(person_data$HINCP)["75%"], digits = 5)),
+           hjust = 1, vjust = 1) 
+
+```
+
+
+This histogram of Annual Income is also skewed positively to the right. The peak is at $20,000. I believe this is a Poisson distribution. I had to adjust the bin width to produce these results.
+
+## Variable 4: Gross Rent as a Percentage of Household Income (GRPIP)
+
+```{r}
+summary(person_data$GRPIP)
+paste("The sample mean for gross rent as a percentage of household income is",
+      prettyNum(mean(person_data$GRPIP), digits = 1), "%.")
+paste("The sample median for gross rent as a percentage of household income is",
+      prettyNum(median(person_data$GRPIP), digits = 1), "%.")
+paste("The sample standard deviation for gross rent as a percentage of household income is",
+      prettyNum(sd(person_data$GRPIP), digits = 1), "%.")
+paste("The sample interquartile range for gross rent as a percentage of household income is",
+      quantile(person_data$GRPIP)["25%"], "% to", quantile(person_data$GRPIP)["75%"], "%.")
+pop_mean <- t.test(person_data$GRPIP)
+pop_mean
+paste("The 95-percent confidence interval for the population mean is",
+      prettyNum(pop_mean$conf.int[1], digits = 1), "% to",
+      prettyNum(pop_mean$conf.int[2], digits = 1), "%.")
+```
+```{r}
+ggplot(person_data, aes(x = person_data$GRPIP)) + 
+  geom_histogram(color = "gray", binwidth = 1) +
+  theme_bw() +
+  scale_x_continuous(name = "Gross Rest as a Percentage of Annual Household Income", breaks = seq(30, 100, by = 10)) + 
+  scale_y_continuous(name = "Number of people in sample") +
+  annotate("text", x = 100, y = 400, size = 3, 
+           label = paste("Population mean (95% confidence):",
+                         prettyNum(pop_mean$conf.int[1], digits = 1),
+                         "% to",
+                         prettyNum(pop_mean$conf.int[2], digits = 1),
+                         "%.",
+                         "\nSample mean:", 
+                         prettyNum(mean(person_data$GRPIP), digits = 0), "%.",
+                         "\nSample median:",
+                         prettyNum(median(person_data$GRPIP), digits = 0), "%.",
+                         "\nSample standard deviation:",
+                         prettyNum(sd(person_data$GRPIP), digits = 0), "%.", 
+                         "\nSample interquartile range:",
+                         prettyNum(quantile(person_data$GRPIP)["25%"], digits = 0),
+                         "% to",
+                         prettyNum(quantile(person_data$GRPIP)["75%"], digits = 0),
+                         "%."),
+           hjust = 1, vjust = 1) 
+```
+
+
+This histogram of Gross Rent as a Percentage of Household Income is also skewed positively to the right with a long tail. Would this be a negative binomial distribution? The peak is at 30% of household income being spent on rent. This makes sense, it would be incredibly difficult to live as this percentage increases. Next week, I think I will run this variable with all respondants from 0-100% to see that distribution.
+
+# Categorical Variables
+
+## Variable 5: Race (RAC1P)
+
+```{r}
+race <- unique(person_data$RAC1P_label)
+race
+```
+```{r}
+white <- t.test(person_data$RAC1P_label == race[1])
+black <- t.test(person_data$RAC1P_label == race[2])
+american_indian <- t.test(person_data$RAC1P_label == race[3])
+asian <-  t.test(person_data$RAC1P_label == race[4])
+two_races <-  t.test(person_data$RAC1P_label == race[5])
+other_race <-  t.test(person_data$RAC1P_label == race[6])
+native_hawaiian_pacific_islander <-  t.test(person_data$RAC1P_label == race[7])
+anerican_indian_alaska_native <-  t.test(person_data$RAC1P_label == race[8])
+shares <- tibble(race = c("White", 
+                            "Black or African American", 
+                            "American Indian",
+                            "Asian",
+                            "Two or More Races",
+                            "Some Other Race",
+                            "Native Hawaiian and Other Pacific Islander",
+                            "American Indian and Alaska Native tribes specified"),
+                 `Share` = c(white$estimate, 
+                             black$estimate,
+                             american_indian$estimate,
+                             asian$estimate,
+                             two_races$estimate,
+                             other_race$estimate,
+                             native_hawaiian_pacific_islander$estimate,
+                             anerican_indian_alaska_native$estimate),
+                 Low = c(white$conf.int[1],
+                         black$conf.int[1],
+                         american_indian$conf.int[1],
+                         asian$conf.int[1],
+                         two_races$conf.int[1],
+                         other_race$conf.int[1],
+                         native_hawaiian_pacific_islander$conf.int[1],
+                         anerican_indian_alaska_native$conf.int[1]),
+                 High = c(white$conf.int[2],
+                         black$conf.int[2],
+                         american_indian$conf.int[2],
+                         asian$conf.int[2],
+                         two_races$conf.int[2],
+                         other_race$conf.int[2],
+                         native_hawaiian_pacific_islander$conf.int[2],
+                         anerican_indian_alaska_native$conf.int[2]))
+knitr::kable(shares, caption = "Proportions and 95-percent confidence intervals")
+```
+
+
+```{r}
+ggplot(shares, aes(x = race, y = Share, ymin = Low, ymax = High)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  geom_errorbar(width = 0.5) +
+  theme_bw() +
+  scale_x_discrete(labels = c("American Indian", 
+                            "American Indian and Alaska Native tribes specified", 
+                            "Asian",
+                            "Black or African American",
+                            "Native Hawaiian and Other Pacific Islander",
+                            "Some Other Race",
+                            "Two or More Races",
+                            "White")) +
+  scale_y_continuous(name = "Share of population (error bars represent\n 95-percent confidence interval)",
+                     
+                     breaks = c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+                     labels = c("0", "10%", "20%", "30%", "40%", "50%", "60%", "70%"))
+```
+
+## Variable 6: Highest Level of Education (SCHL) 
+
+Note: I faced an issue here where my data is not in ascending order (Kindergarten to Doctorate degree.) I could fix this by rearranging the original data. I'm sure there is an alternative solution in the code below that I will seek out this week.  
+
+```{r}
+Education <- unique(person_data$SCHL_label)
+Education
+```
+```{r}
+associate <- t.test(person_data$SCHL_label == Education[1])
+grade_11 <- t.test(person_data$SCHL_label == Education[2])
+masters <- t.test(person_data$SCHL_label == Education[3])
+bachelors <-  t.test(person_data$SCHL_label == Education[4])
+no_degree <-  t.test(person_data$SCHL_label == Education[5])
+hs <-  t.test(person_data$SCHL_label == Education[6])
+ged <-  t.test(person_data$SCHL_label == Education[7])
+some_college <-  t.test(person_data$SCHL_label == Education[8])
+grade_6 <-  t.test(person_data$SCHL_label == Education[9])
+doctorate <-  t.test(person_data$SCHL_label == Education[10])
+grade_10 <-  t.test(person_data$SCHL_label == Education[11])
+
+
+shares <- tibble(Education = c("Associate's degree", 
+                            "Grade 11", 
+                            "Master's degree",
+                            "Bachelor's degree",
+                            "1 or more years of college credit, no degree",
+                            "Regular high school diploma",
+                            "GED or alternative credential",
+                            "Some college, but less than 1 year",
+                            "Grade 6",
+                            "Doctorate degree",
+                            "Grade 10"),
+                 `Share` = c(associate$estimate, 
+                             grade_11$estimate,
+                             masters$estimate,
+                             bachelors$estimate,
+                             no_degree$estimate,
+                             hs$estimate,
+                             ged$estimate,
+                             some_college$estimate,
+                             grade_6$estimate,
+                             doctorate$estimate,
+                             grade_10$estimate),
+                 Low = c(associate$conf.int[1],
+                         grade_11$conf.int[1],
+                         masters$conf.int[1],
+                         bachelors$conf.int[1],
+                         no_degree$conf.int[1],
+                         hs$conf.int[1],
+                         ged$conf.int[1],
+                         some_college$conf.int[1],
+                         grade_6$conf.int[1],
+                         doctorate$conf.int[1],
+                         grade_10$conf.int[1]),
+                 High = c(associate$conf.int[2],
+                         grade_11$conf.int[2],
+                         masters$conf.int[2],
+                         bachelors$conf.int[2],
+                         no_degree$conf.int[2],
+                         hs$conf.int[2],
+                         ged$conf.int[2],
+                         some_college$conf.int[2],
+                         grade_6$conf.int[2],
+                         doctorate$conf.int[2],
+                         grade_10$conf.int[2]))
+knitr::kable(shares, caption = "Proportions and 95-percent confidence intervals")
+```
+```{r}
+ggplot(shares, aes(x = Education, y = Share, ymin = Low, ymax = High)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  geom_errorbar(width = 0.5) +
+  theme_bw() +
+  scale_x_discrete(labels = c("1 or more years of college credit, no degree", 
+                            "Associate’s degree", 
+                            "Bachelor’s degree",
+                            "GED or alternative credential",
+                            "Grade 11",
+                            "Master’s degree",
+                            "Regular high school diploma",
+                            "Some college, but less than 1 year",
+                            "Grade 6",
+                            "Doctorate Degree",
+                            "Grade 10")) +
+  scale_y_continuous(name = "Share of population (error bars represent\n 95-percent confidence interval)",
+                     
+                     breaks = c(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7),
+                     labels = c("0", "5%", "10%", "15%", "20%", "25%", "30%", "40%", "50%", "60%", "70%"))
+```
