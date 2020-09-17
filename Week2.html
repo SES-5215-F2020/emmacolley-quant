@@ -1952,7 +1952,8 @@ knitr::kable(shares, caption = &quot;Proportions and 95-percent confidence inter
 </div>
 <div id="variable-6-highest-level-of-education-schl" class="section level2">
 <h2>Variable 6: Highest Level of Education (SCHL)</h2>
-<p>Note: I faced an issue here where my data is not in ascending order (Kindergarten to Doctorate degree.) I could fix this by rearranging the original data. I’m sure there is an alternative solution in the code below that I will seek out this week.</p>
+<p>I faced an issue here where my data is not in ascending order (Kindergarten to Doctorate degree.) I could fix this by rearranging the original data. I’m sure there is an alternative solution in the code below that I will seek out this week.</p>
+<p>Also, I decided to truncate the data to Grade 2 and higher, so 14 variables are represented in the visualization instead of the total 24.</p>
 <pre class="r"><code>Education &lt;- unique(person_data$SCHL_label)
 Education</code></pre>
 <pre><code>##  [1] &quot;Associate&#39;s degree&quot;                            

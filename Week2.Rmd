@@ -306,7 +306,9 @@ ggplot(shares, aes(x = race, y = Share, ymin = Low, ymax = High)) +
 
 ## Variable 6: Highest Level of Education (SCHL) 
 
-Note: I faced an issue here where my data is not in ascending order (Kindergarten to Doctorate degree.) I could fix this by rearranging the original data. I'm sure there is an alternative solution in the code below that I will seek out this week.  
+I faced an issue here where my data is not in ascending order (Kindergarten to Doctorate degree.) I could fix this by rearranging the original data. I'm sure there is an alternative solution in the code below that I will seek out this week. 
+
+Also, I decided to truncate the data to Grade 2 and higher, so 14 variables are represented in the visualization instead of the total 24.
 
 ```{r}
 Education <- unique(person_data$SCHL_label)
