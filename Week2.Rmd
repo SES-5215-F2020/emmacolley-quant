@@ -9,9 +9,9 @@ output:
     theme: lumen
 ---
 
-## Definition of Variables
+# Redefining Variables
 
-While I kept my overall topic of rent burden in Massachusetts, I changed my variables since last week. In Assignment 1, I was working with household-level data. In Assignment 2 I will be working with person-level data. I did this because there were several person-level categorical variables I was interested in analyzing along side Gross Rent as Percentage of Household Income. So in this study, I am including individuals who live in rent burdened households. All individuals in the sample have a gross household rent that is 30-100% of their household income. I selected four continuous variables and two categorical variables as shown below.
+While I kept my overall topic of rent burden in Massachusetts, I changed my variables since last week. In Assignment 1, I was working with household-level data. In Assignment 2 I will be working with person-level data. I did this because there were several person-level categorical variables I was interested in analyzing along side Gross Rent as Percentage of Household Income. So in this study, I am including individuals who live in rent burdened households. All individuals in the sample pay a gross household rent that is 30-100% of their household income. I selected four continuous variables and two categorical variables as shown below.
 
 *Continuous*
 
@@ -133,7 +133,7 @@ ggplot(person_data, aes(x = person_data$NP)) +
            hjust = 1, vjust = 1) 
 ```
 
-This histogram of Number of People in the Household is also skewed positively to the right.I'm not sure if there is a term to describe the initial plateau where the majority of people in this sample live in households with 1 or 2 people; the mean and median are the same. These last conclusions aren't surprising for a sample in a city (Boston).
+This histogram of Number of People in the Household is also skewed positively to the right.I'm not sure if there is a term to describe the initial plateau where the majority of people in this sample live in households with 1 or 2 people; the mean and median are the same. These last conclusions aren't surprising to me because I am hypothesizing that mostly rent burdened households are in urban areas (Boston).
 
 ## Variable 3: Annual Household Income (HINCP)
 
@@ -322,6 +322,12 @@ some_college <-  t.test(person_data$SCHL_label == Education[8])
 grade_6 <-  t.test(person_data$SCHL_label == Education[9])
 doctorate <-  t.test(person_data$SCHL_label == Education[10])
 grade_10 <-  t.test(person_data$SCHL_label == Education[11])
+professional <-  t.test(person_data$SCHL_label == Education[12])
+grade_8 <-  t.test(person_data$SCHL_label == Education[13])
+grade_2 <-  t.test(person_data$SCHL_label == Education[14])
+no_school <-  t.test(person_data$SCHL_label == Education[14])
+grade_4 <-  t.test(person_data$SCHL_label == Education[14])
+grade_7 <-  t.test(person_data$SCHL_label == Education[14])
 
 
 shares <- tibble(Education = c("Associate's degree", 
@@ -334,7 +340,13 @@ shares <- tibble(Education = c("Associate's degree",
                             "Some college, but less than 1 year",
                             "Grade 6",
                             "Doctorate degree",
-                            "Grade 10"),
+                            "Grade 10",
+                            "Professional degree beyond a bachelor's degree",
+                            "Grade 8",
+                            "Grade 2",
+                            "No schooling completed",
+                            "Grade 4",
+                            "Grade 7"),
                  `Share` = c(associate$estimate, 
                              grade_11$estimate,
                              masters$estimate,
@@ -345,7 +357,13 @@ shares <- tibble(Education = c("Associate's degree",
                              some_college$estimate,
                              grade_6$estimate,
                              doctorate$estimate,
-                             grade_10$estimate),
+                             grade_10$estimate,
+                             professional$estimate,
+                             grade_8$estimate,
+                             grade_2$estimate,
+                             no_school$estimate,
+                             grade_4$estimate,
+                             grade_7$estimate),
                  Low = c(associate$conf.int[1],
                          grade_11$conf.int[1],
                          masters$conf.int[1],
@@ -356,7 +374,13 @@ shares <- tibble(Education = c("Associate's degree",
                          some_college$conf.int[1],
                          grade_6$conf.int[1],
                          doctorate$conf.int[1],
-                         grade_10$conf.int[1]),
+                         grade_10$conf.int[1],
+                         professional$conf.int[1],                 
+                         grade_8$conf.int[1],                
+                         grade_2$conf.int[1],
+                         no_school$conf.int[1],
+                         grade_4$conf.int[1],
+                         grade_7$conf.int[1]),
                  High = c(associate$conf.int[2],
                          grade_11$conf.int[2],
                          masters$conf.int[2],
@@ -367,7 +391,13 @@ shares <- tibble(Education = c("Associate's degree",
                          some_college$conf.int[2],
                          grade_6$conf.int[2],
                          doctorate$conf.int[2],
-                         grade_10$conf.int[2]))
+                         grade_10$conf.int[2],
+                         professional$conf.int[2],
+                         grade_8$conf.int[2],
+                         grade_2$conf.int[2],
+                         no_school$conf.int[2],
+                         grade_4$conf.int[2],
+                         grade_7$conf.int[2]))
 knitr::kable(shares, caption = "Proportions and 95-percent confidence intervals")
 ```
 ```{r}
@@ -379,14 +409,20 @@ ggplot(shares, aes(x = Education, y = Share, ymin = Low, ymax = High)) +
   scale_x_discrete(labels = c("1 or more years of college credit, no degree", 
                             "Associate’s degree", 
                             "Bachelor’s degree",
+                            "Doctorate Degree",
                             "GED or alternative credential",
+                            "Grade 2",
+                            "Grade 4",
+                            "Grade 6",
+                            "Grade 7",
+                            "Grade 8",
+                            "Grade 10",
                             "Grade 11",
                             "Master’s degree",
+                            "No schooling completed",
+                            "Professional degree beyond a bachelor’s degree",
                             "Regular high school diploma",
-                            "Some college, but less than 1 year",
-                            "Grade 6",
-                            "Doctorate Degree",
-                            "Grade 10")) +
+                            "Some college, but less than 1 year")) +
   scale_y_continuous(name = "Share of population (error bars represent\n 95-percent confidence interval)",
                      
                      breaks = c(0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7),
