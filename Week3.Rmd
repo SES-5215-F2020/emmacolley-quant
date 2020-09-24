@@ -129,7 +129,7 @@ ggplot(person_data, aes(x = NP, y = GRPIP)) +
 
 ## Household Income and Gross Rent as a Percentage of Household Income
 
-This correlation is only moderately (around 0.5) but statistically significant. There is a negative correlation at a 95% confidence level. 
+This correlation is only moderate (around 0.5) but statistically significant. There is a negative correlation at a 95% confidence level. 
 
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$HINCP, person_data$GRPIP)
@@ -161,7 +161,7 @@ Here are Pearson's tests of other continuous variables that aren't GRPIP.
 
 ## Age of Induvidal and Number of People in their Household
 
-This correlation is moderately weak (around 0.3) and statistically significant. There is a negative correlation at a 95% confidence level. 
+This correlation is weak (around 0.3) and statistically significant. There is a negative correlation at a 95% confidence level. 
 
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$AGEP, person_data$NP)
@@ -190,7 +190,7 @@ Here are Two Sample t-tests and accompanying figures for Gross Rent as a Percent
 
 Are people with a Bachelor's Degree less likely to live in rent burdened households?
 
-There is a significant relationship between these two variables. We can be 95% confident that people in this sample set with a four-year college degree (Bachelor's or higher) live in households that pay 5% - 6% less of their income on rent than those without a Bachelor's degree. This is statistically significant. It looks like many people with a college degree live in households that pay less than 20% of their income on rent.
+There is a significant relationship between these two variables. We can be 95% confident that people in this sample set with a four-year college degree (Bachelor's or higher) live in households that pay 5% - 6% less of their income on rent than those without a Bachelor's degree. It looks like many people with a college degree live in households that pay less than 20% of their income on rent.
 
 ```{r, message=FALSE, results='hide'}
 difference = t.test(GRPIP ~ EDU == "Bachelor's Degree or Higher",
@@ -224,7 +224,7 @@ ggplot(person_data, aes(x = EDU == "Bachelor's Degree or Higher", y = GRPIP)) +
 
 ## Gross Rent as Percentage of Household Income and Race
 
-There is a significant relationship between these two variables. We can be 95% confident that households with at least one person who is white that pay 2% - 3% less of their income on rent than non-white households. This is statistically significant. Again, many more household with at least one white person pay less than 20% of their income on rent.
+There is a significant relationship between these two variables. We can be 95% confident that households with at least one person who is white that pay 2% - 3% less of their income on rent than non-white households. Again, many more household with at least one white person pay less than 20% of their income on rent. I thought this would be slightly more but I am not defining entirely white vs. entirely non-white households at this time.
 
 ```{r, message=FALSE, results='hide'}
 difference = t.test(GRPIP ~ RAC1P_label == "White alone",
@@ -343,11 +343,11 @@ Here is a Chi-Square test.
 
 ## Race of An Induvidual and their Level of Education
 
-For this data set of residents of Suffolk County, is there a relationship between an individuals race and their education level?
+For this data set of residents of Massachusetts, is there a relationship between an individuals race and their education level?
 
 Note: I am receiving a notification that "Chi=squared approximation may be incorrect." My classmate Megan Willis-Jackson explained to me this is because there are some race categories with very few observations. 
 
-There is a statistically significant relationship between an individual's race and their level of education. There is weak confidence that there is a relationship between an individual's race and their level of education in this sample set. 
+There is a statistically significant relationship between an individual's race and their level of education.
 
 ```{r}
 chi_sq <- chisq.test(person_data$RAC1P_label, person_data$SCHL_label == "Master's degree") 
