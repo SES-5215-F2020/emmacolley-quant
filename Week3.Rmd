@@ -1,0 +1,343 @@
+---
+title: "Week 3 Assignment"
+author: "Emma Colley"
+date: "9/21/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: lumen
+    code_floating: hide
+---
+
+# Redefining Variables
+
+While I've kept my overall topic of rent burden in Massachusetts, I've made some small updates since last week. Instead of including people who spend 30% - 100% of their gross household income on monthly rent, I am now including all people who spend 0-100% of their gross household income on rent. I think this will give more depth to my findings below. Also, when examining the number of people in a household, I am capping the number at 10 people. There were a few outliers with 11, 12 and 13 people.
+
+*Continuous*
+
+1. Age of Individual (AGEP)
+2. Number of People in Household (NP)
+3. Annual Household Income (HINCP)
+4. Gross Rent as Percentage of Household Income (GRPIP)
+  
+*Categorical*
+
+1. Race/Ethnicity (RAC1P)
+2. Highest Level of Education Received (SCHL)
+
+## Loading Libraries
+
+```{r load libraries, message = FALSE}
+library(tidycensus)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+```
+
+## Loading Data
+
+I am going to re-code the education level data to break it into fewer categories. I'll attempt to use this later.
+
+```{r, message = FALSE}
+person_data <- read_csv("rent_burden_massachusetts_v3.csv") %>%
+mutate(EDU = case_when(
+    SCHL_label=="1 or more years of college credit, no degree"~"GED or High School Diploma",
+    SCHL_label=="12th grade - no diploma"~"No High School Diploma",
+    SCHL_label=="Associate's degree"~"Associate's Degree",
+    SCHL_label=="Bachelor's degree"~"Bachelor's Degree or Higher",
+    SCHL_label=="Doctorate degree"~"Bachelor's Degree or Higher",
+    SCHL_label=="GED or alternative credential"~"GED or High School Diploma",
+    SCHL_label=="Grade 10"~"No High School Diploma",
+    SCHL_label=="Grade 11"~"No High School Diploma",
+    SCHL_label=="Grade 1"~"No High School Diploma",
+    SCHL_label=="Grade 2"~"No High School Diploma",
+    SCHL_label=="Grade 3"~"No High School Diploma",
+    SCHL_label=="Grade 4"~"No High School Diploma",
+    SCHL_label=="Grade 5"~"No High School Diploma",
+    SCHL_label=="Grade 6"~"No High School Diploma",
+    SCHL_label=="Grade 7"~"No High School Diploma",
+    SCHL_label=="Grade 8"~"No High School Diploma",
+    SCHL_label=="Grade 9"~"No High School Diploma",
+    SCHL_label=="Kindergarten"~"No High School Diploma",
+    SCHL_label=="Master's degree"~"Bachelor's Degree or Higher",
+    SCHL_label=="No schooling completed"~"No High School Diploma",
+    SCHL_label=="Nursery school, preschool"~"No High School Diploma",
+    SCHL_label=="Professional degree beyond a bachelor's degree"~"Bachelor's Degree or Higher",
+    SCHL_label=="Regular high school diploma"~"GED or High School Diploma",
+    SCHL_label=="Some college, but less than 1 year"~"GED or High School Diploma"))
+```
+
+# Relationships between continuous variables that I'm interested In
+
+Here are Pearson's tests and accompanying figures of Gross Rent as a Percentage of Household Income compared to other variables.
+
+
+## Age of Induvidual and Gross Rent as a Percentage of their Household Income
+
+```{r, message=FALSE, results='hide'}
+correlation <- cor.test(person_data$AGEP, person_data$GRPIP)
+
+correlation
+```
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = AGEP, y = GRPIP)) +
+  geom_point(size = 0.6, alpha = 0.25, position = "jitter") +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(name = "Age of Induvidual", breaks = seq(18, 100, by = 10)) +
+  scale_y_continuous(name = "Gross monthly rent as a Percentage of Household Income",
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) +
+  annotate(geom = "text", x = 18, y = 105, 
+           label = paste("Correlation (95-percent confidence):",
+                         prettyNum(correlation$conf.int[1], digits = 2), 
+                         "to",
+                         prettyNum(correlation$conf.int[2], digits = 2)),
+           hjust = 0)
+```
+
+
+## Number of People in Household and Gross Rent as a Percentage of their Household Income
+
+```{r, message=FALSE, results='hide'}
+correlation <- cor.test(person_data$NP, person_data$GRPIP)
+
+correlation
+```
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = NP, y = GRPIP)) +
+  geom_point(size = 0.6, alpha = 0.25, position = "jitter") +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(name = "Number of People in Household", breaks = seq(1, 10, by = 1)) +
+  scale_y_continuous(name = "Gross monthly rent as a Percentage of Household Income",
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) +
+  annotate(geom = "text", x = 1, y = 105, 
+           label = paste("Correlation (95-percent confidence):",
+                         prettyNum(correlation$conf.int[1], digits = 2), 
+                         "to",
+                         prettyNum(correlation$conf.int[2], digits = 2)),
+           hjust = 0)
+```
+
+
+## Household Income and Gross Rent as a Percentage of Household Income
+
+```{r, message=FALSE, results='hide'}
+correlation <- cor.test(person_data$HINCP, person_data$GRPIP)
+
+correlation
+```
+
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = HINCP, y = GRPIP)) +
+  geom_point(size = 0.6, alpha = 0.25) +
+  geom_smooth() +
+  theme_bw() +
+  scale_x_continuous(name = "Household Income") +
+  scale_y_continuous(name = "Gross monthly rent as a Percentage of Household Income",
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) +
+  annotate(geom = "text", x = 0, y = 105, 
+           label = paste("Correlation (95-percent confidence):",
+                         prettyNum(correlation$conf.int[1], digits = 2), 
+                         "to",
+                         prettyNum(correlation$conf.int[2], digits = 2)),
+           hjust = 0)
+```
+
+# Other relationships between two continuous variables
+
+Here are Pearson's tests of other continuous variables that aren't GRPIP.
+
+
+## Age of Induvidal and Number of People in their Household
+
+```{r, message=FALSE, results='hide'}
+correlation <- cor.test(person_data$AGEP, person_data$NP)
+
+correlation
+```
+
+
+## Age of Induvidal and their Household Income
+
+```{r, message=FALSE, results='hide'}
+correlation <- cor.test(person_data$AGEP, person_data$HINCP)
+
+correlation
+```
+
+
+# Relationships between a continuous variable and a binary variable that I'm interested in
+
+Here are Two Sample t-tests and accompanying figures for Gross Rent as a Percentage of Household Income and binary variables.
+
+
+## Gross Rent as Percentage of Household Income and Education Level
+
+Households with people who hold a college degree (Bachelor's degree or higher) face slightly less rent burden.
+
+Are people with a Master's Degree less likely to live in rent burdened households?
+
+```{r, message=FALSE, results='hide'}
+difference = t.test(GRPIP ~ EDU == "Bachelor's Degree or Higher",
+                    data = person_data)
+
+difference
+```
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = EDU == "Bachelor's Degree or Higher", y = GRPIP)) +
+  geom_violin() +
+  theme_bw() +
+  scale_x_discrete(name = "Does Someone in the Household Have a Bachelor's Degree or Higher?",
+                   labels = c("No", "Yes")) +
+   scale_y_continuous(name = "Gross monthly rent as Percentage of Household Income", 
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) +
+  annotate(geom = "text", x = 1.5, y = 90, size = 3,
+           label = paste("Difference in means\n(95% confidence):\n",
+                         prettyNum(abs(difference$conf.int[2]), 
+                                   digits = 0), "% to ",
+                         prettyNum(abs(difference$conf.int[1]), 
+                                   digits = 0), "%",
+                         sep = "")) +
+  annotate(geom = "text", x = 1, y = difference$estimate[1], size = 3,
+           label = paste("Mean (95% confidence):\n",
+                         prettyNum(difference$estimate[1], digits = 0), "%")) +
+  annotate(geom = "text", x = 2, y = difference$estimate[2], size = 3,
+           label = paste("Mean (95% confidence):\n",
+                         prettyNum(difference$estimate[2], digits = 0), "%"))
+```
+
+## Gross Rent as Percentage of Household Income and Race
+
+When a household includes someone who is white, they pay an average of 29% on their household income on rent. Non-white households pay an average of 32%.
+
+```{r, message=FALSE, results='hide'}
+difference = t.test(GRPIP ~ RAC1P_label == "White alone",
+                    data = person_data)
+
+difference
+```
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = RAC1P_label == "White alone", y = GRPIP)) +
+  geom_violin() +
+  theme_bw() +
+  scale_x_discrete(name = "Is someone in the household white?",
+                   labels = c("No", "Yes")) +
+   scale_y_continuous(name = "Gross monthly rent as Percentage of Household Income", 
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) +
+  annotate(geom = "text", x = 1.5, y = 90, size = 3,
+           label = paste("Difference in means\n(95% confidence):\n",
+                         prettyNum(abs(difference$conf.int[2]), 
+                                   digits = 0), "% to ",
+                         prettyNum(abs(difference$conf.int[1]), 
+                                   digits = 0), "%",
+                         sep = "")) +
+  annotate(geom = "text", x = 1, y = difference$estimate[1], size = 3,
+           label = paste("Mean (95% confidence):\n",
+                         prettyNum(difference$estimate[1], digits = 0), "%")) +
+  annotate(geom = "text", x = 2, y = difference$estimate[2], size = 3,
+           label = paste("Mean (95% confidence):\n",
+                         prettyNum(difference$estimate[2], digits = 0), "%"))
+```
+
+
+
+# Relationship between a continuous variable and a categorical variable (three or more levels) that I'm interested in
+
+here are ANOVA test and accompanying figures for Gross Rent as a Percentage of Household Income and categorical variables.
+
+
+## Gross Rent as Percentage of Household Income and Race
+
+```{r, message=FALSE, results='hide'}
+anova <- aov(GRPIP ~ RAC1P_label, data = person_data)
+
+summary(anova)
+```
+
+```{r, message=FALSE, results='hide'}
+differences <- TukeyHSD(anova)
+
+as_tibble(cbind(pair = row.names(differences$RAC1P),
+                differences$RAC1P))
+```
+
+```{r, message=FALSE, results='hide'}
+ggplot(person_data, aes(x = RAC1P_label, y = GRPIP)) +
+  geom_boxplot() +
+  theme_bw() +
+  scale_x_discrete(name = "Race", labels = c("American\nIndian", 
+                            "American\nIndian\nAlaska Native\ntribes", 
+                            "Asian",
+                            "Black or\nAfrican\nAmerican",
+                            "Native\nHawaiian\nPacific\nIslander",
+                            "Some\nOther Race",
+                            "Two or\nMore Races",
+                            "White")) +
+
+  scale_y_continuous(name = "Gross Monthly Rent as Percentage of Household Income", 
+                     breaks = seq(0, 100, by = 10),
+                     labels = paste(prettyNum(seq(0, 100, by = 10)), "%")) 
+```
+
+# Other relationships between continuous variables and categorical variables (three or more levels)
+
+Here are ANOVA tests for continuous and categorical variables that don't include GRPIP.
+
+
+## Race of an Induvidual and Their Household Income
+
+```{r}
+anova <- aov(HINCP ~ RAC1P_label, data = person_data)
+
+summary(anova)
+```
+```{r}
+differences <- TukeyHSD(anova)
+
+as_tibble(cbind(pair = row.names(differences$RAC1P),
+                differences$RAC1P))
+```
+
+
+## Level of Education of an Induvidual and Their Household Income
+
+```{r}
+anova <- aov(HINCP ~ EDU, data = person_data)
+
+summary(anova)
+```
+```{r}
+differences <- TukeyHSD(anova)
+
+as_tibble(cbind(pair = row.names(differences$EDU),
+                differences$EDU))
+```
+
+
+# Relationship between two categorical variables
+
+Here is a Chi-Square test.
+
+## Race of An Induvidual and their Level of Education
+
+For this data set of residents of Suffolk County, is there a relationship between an individuals race and their education level?
+
+```{r}
+chi_sq <- chisq.test(person_data$RAC1P_label, person_data$SCHL_label == "Master's degree") 
+
+chi_sq
+```
+```{r}
+chi_sq$observed
+```
+```{r}
+chi_sq$expected
+```
+
