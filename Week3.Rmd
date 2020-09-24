@@ -75,6 +75,8 @@ Here are Pearson's tests and accompanying figures of Gross Rent as a Percentage 
 
 ## Age of Induvidual and Gross Rent as a Percentage of their Household Income
 
+This correlation is weak but statistically significant. There is a slightly positive correlation at a 95% confidence level. 
+
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$AGEP, person_data$GRPIP)
 
@@ -100,6 +102,8 @@ ggplot(person_data, aes(x = AGEP, y = GRPIP)) +
 
 ## Number of People in Household and Gross Rent as a Percentage of their Household Income
 
+This correlation is weak but statistically significant. There is a negative correlation at a 95% confidence level. 
+
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$NP, person_data$GRPIP)
 
@@ -124,6 +128,8 @@ ggplot(person_data, aes(x = NP, y = GRPIP)) +
 
 
 ## Household Income and Gross Rent as a Percentage of Household Income
+
+This correlation is only moderately (around 0.5) but statistically significant. There is a negative correlation at a 95% confidence level. 
 
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$HINCP, person_data$GRPIP)
@@ -155,6 +161,8 @@ Here are Pearson's tests of other continuous variables that aren't GRPIP.
 
 ## Age of Induvidal and Number of People in their Household
 
+This correlation is moderately weak (around 0.3) and statistically significant. There is a negative correlation at a 95% confidence level. 
+
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$AGEP, person_data$NP)
 
@@ -163,6 +171,8 @@ correlation
 
 
 ## Age of Induvidal and their Household Income
+
+This correlation is weak but statistically significant. There is a negative correlation at a 95% confidence level. 
 
 ```{r, message=FALSE, results='hide'}
 correlation <- cor.test(person_data$AGEP, person_data$HINCP)
@@ -178,9 +188,9 @@ Here are Two Sample t-tests and accompanying figures for Gross Rent as a Percent
 
 ## Gross Rent as Percentage of Household Income and Education Level
 
-Households with people who hold a college degree (Bachelor's degree or higher) face slightly less rent burden.
+Are people with a Bachelor's Degree less likely to live in rent burdened households?
 
-Are people with a Master's Degree less likely to live in rent burdened households?
+There is a significant relationship between these two variables. We can be 95% confident that people in this sample set with a four-year college degree (Bachelor's or higher) live in households that pay 5% - 6% less of their income on rent than those without a Bachelor's degree. This is statistically significant. It looks like many people with a college degree live in households that pay less than 20% of their income on rent.
 
 ```{r, message=FALSE, results='hide'}
 difference = t.test(GRPIP ~ EDU == "Bachelor's Degree or Higher",
@@ -214,7 +224,7 @@ ggplot(person_data, aes(x = EDU == "Bachelor's Degree or Higher", y = GRPIP)) +
 
 ## Gross Rent as Percentage of Household Income and Race
 
-When a household includes someone who is white, they pay an average of 29% on their household income on rent. Non-white households pay an average of 32%.
+There is a significant relationship between these two variables. We can be 95% confident that households with at least one person who is white that pay 2% - 3% less of their income on rent than non-white households. This is statistically significant. Again, many more household with at least one white person pay less than 20% of their income on rent.
 
 ```{r, message=FALSE, results='hide'}
 difference = t.test(GRPIP ~ RAC1P_label == "White alone",
@@ -255,6 +265,8 @@ here are ANOVA test and accompanying figures for Gross Rent as a Percentage of H
 
 ## Gross Rent as Percentage of Household Income and Race
 
+There is a significant relationships between an individual's race and their rent as a gross percentage of their household income. 
+
 ```{r, message=FALSE, results='hide'}
 anova <- aov(GRPIP ~ RAC1P_label, data = person_data)
 
@@ -293,6 +305,8 @@ Here are ANOVA tests for continuous and categorical variables that don't include
 
 ## Race of an Induvidual and Their Household Income
 
+There is a significant relationships between an individual's race and their household income. 
+
 ```{r}
 anova <- aov(HINCP ~ RAC1P_label, data = person_data)
 
@@ -307,6 +321,8 @@ as_tibble(cbind(pair = row.names(differences$RAC1P),
 
 
 ## Level of Education of an Induvidual and Their Household Income
+
+There is a significant relationships between an individual's level of education and their household income. 
 
 ```{r}
 anova <- aov(HINCP ~ EDU, data = person_data)
@@ -328,6 +344,10 @@ Here is a Chi-Square test.
 ## Race of An Induvidual and their Level of Education
 
 For this data set of residents of Suffolk County, is there a relationship between an individuals race and their education level?
+
+Note: I am receiving a notification that "Chi=squared approximation may be incorrect." My classmate Megan Willis-Jackson explained to me this is because there are some race categories with very few observations. 
+
+There is a statistically significant relationship between an individual's race and their level of education. There is weak confidence that there is a relationship between an individual's race and their level of education in this sample set. 
 
 ```{r}
 chi_sq <- chisq.test(person_data$RAC1P_label, person_data$SCHL_label == "Master's degree") 
