@@ -1,0 +1,135 @@
+---
+title: "Week 3 Assignment"
+author: "Emma Colley"
+date: "9/21/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: lumen
+    code_floating: hide
+---
+
+# Variables
+
+*Continuous*
+
+1. Age of Individual (AGEP)
+2. Number of People in Household (NP)
+3. Annual Household Income (HINCP)
+4. Gross Rent as Percentage of Household Income (GRPIP)
+  
+*Categorical*
+
+1. Race/Ethnicity (RAC1P)
+2. Highest Level of Education Received (SCHL)
+
+## Loading Libraries
+
+```{r load libraries, message = FALSE}
+library(tidycensus)
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+library(dbplyr)
+library(dplyr)
+```
+
+## Loading Data
+
+I am going to re-code the education level data and race data to break them into fewer categories.
+
+```{r, message = FALSE}
+person_data <- read_csv("rent_burden_massachusetts_v3.csv") %>%
+
+mutate(EDU = case_when(
+    SCHL_label=="1 or more years of college credit, no degree"~"HS Diploma",
+    SCHL_label=="12th grade - no diploma"~"HS Diploma",
+    SCHL_label=="Associate's degree"~"Assoc. Degree",
+    SCHL_label=="Bachelor's degree"~"Bach Degree or Higher",
+    SCHL_label=="Doctorate degree"~"Bach Degree or Higher",
+    SCHL_label=="GED or alternative credential"~"HS Diploma",
+    SCHL_label=="Grade 10"~"1No HS",
+    SCHL_label=="Grade 11"~"1No HS",
+    SCHL_label=="Grade 1"~"1No HS",
+    SCHL_label=="Grade 2"~"1No HS",
+    SCHL_label=="Grade 3"~"1No HS",
+    SCHL_label=="Grade 4"~"1No HS",
+    SCHL_label=="Grade 5"~"1No HS",
+    SCHL_label=="Grade 6"~"1No HS",
+    SCHL_label=="Grade 7"~"1No HS",
+    SCHL_label=="Grade 8"~"1No HS",
+    SCHL_label=="Grade 9"~"1No HS",
+    SCHL_label=="Kindergarten"~"1No HS",
+    SCHL_label=="Master's degree"~"Bach Degree or Higher",
+    SCHL_label=="No schooling completed"~"1No HS",
+    SCHL_label=="Nursery school, preschool"~"1No HS",
+    SCHL_label=="Professional degree beyond a bachelor's degree"~"Bach Degree or Higher",
+    SCHL_label=="Regular high school diploma"~"HS Diploma",
+    SCHL_label=="Some college, but less than 1 year"~"HS Diploma"),
+
+RACE = case_when(
+    RAC1P_label=="American Indian alone"~"Native Am.",
+    RAC1P_label=="American Indian and Alaska Native tribes specified; or American Indian or Alaska Native, not specified and no other races"~"Native Am.",
+    RAC1P_label=="Asian alone"~"Asian",
+    RAC1P_label=="Black or African American alone"~"Black",
+    RAC1P_label=="Native Hawaiian and Other Pacific Islander alone"~"Native Am.",
+    RAC1P_label=="Some Other Race alone"~"Other Race", 
+    RAC1P_label=="Two or More Races"~"Multiracial",   
+    RAC1P_label=="White Alone"~"1White"))
+```
+
+
+```{r}
+model <- lm(GRPIP ~ EDU + RACE + AGEP + NP, 
+            data = person_data)
+
+summary(model)
+```
+## Intrepretation
+
+The multiple R-squared value for this model is 0.03515, which tells us that this model predicts about 4% of the variation in gross rent as a percentage of household income in this dataset.
+
+*Education Level Analysis*
+
+I am comparing education levels to the least amount of education: No High School Diploma.
+
+The coefficient estimate of EDU HS Diploma is -2.15729. This tells us that a household with someone with a high school diploma pays, on average, 2.2% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.
+
+The coefficient estimate of EDU Assoc. Degree is -2.63668. This tells us that a household with someone with an associate's degree pays, on average, 2.6% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.
+
+The coefficient estimate of EDU Bach Degree is -7.53167. This tells us that a household with someone with a Bachelor's degree or higher pays, on average, 7.5% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.
+
+*Race Analysis*
+
+I am comparing races to the most common race in my sample set: White alone.
+
+The coefficient estimate of RACEBlack is -0.32109. This tells us that a household with at least one person who is black or African American pays, on average, 0.3% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.
+
+The coefficient estimate of RACEMultiracial is -0.68149. This tells us that a household with at least one person who is biracial or multiracial pays, on average, 0.7% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.
+
+The coefficient estimate of RACENative Am. is -7.97438. This tells us that a household with at least one person who is Native American, Pacific Islander, Native Alaskan or Native Hawaiian pays, on average, 8.0% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.
+
+The coefficient estimate of RACEOther Race is -0.28386. This tells us that a household with at least one person who is some other race pays, on average, 0.3% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.
+
+*Other Analysis*
+
+The coefficient estimate of AGEP is -0.02735. This tells us that an increase in age by one year is associated with an average decrease in rent as a percentage of household income by 0.03%, on average, controlling for the other variables in the model.
+
+The coefficient estimate of NP is -1.83401. This tells us that as you increase the household size by one person, the rent as a percentage of household income decreases by 1.8%, on average, controlling for the other variables in the model.
+
+
+The variables that are statistically significant at a 95-percent confidence level:
+
+Education Level - Bachelor's Degree or Higher
+Education Level - High School Diploma
+Race - Native American, Pacific Islander, Native Alaskan or Native Hawaiian
+Number of People in the household
+
+The variables that are statistically significant at a 95-percent confidence level:
+
+Education Level - Associate's Degree 
+Race - Black or African American
+Race - Two or more races
+Race - Some other race
+Age of Person in the household
