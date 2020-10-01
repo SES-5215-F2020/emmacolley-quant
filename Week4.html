@@ -1541,6 +1541,11 @@ div.tocify {
 </div>
 
 
+<div id="topic" class="section level1">
+<h1>Topic</h1>
+<p>Rent Burden in Massachusetts</p>
+<p><em>Examining Gross Rent as a Percentage of Household Income against four other variables</em></p>
+</div>
 <div id="variables" class="section level1">
 <h1>Variables</h1>
 <p><em>Continuous</em></p>
@@ -1548,7 +1553,6 @@ div.tocify {
 <li>Age of Individual (AGEP)</li>
 <li>Number of People in Household (NP)</li>
 <li>Annual Household Income (HINCP)</li>
-<li>Gross Rent as Percentage of Household Income (GRPIP)</li>
 </ol>
 <p><em>Categorical</em></p>
 <ol style="list-style-type: decimal">
@@ -1566,7 +1570,7 @@ library(dplyr)</code></pre>
 </div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
-<p>I am going to re-code the education level data and race data to break them into fewer categories.</p>
+<p>I am going to re-code some data into fewer categories. Please note that for the purposes of this exercise I have grouped American Indian, Alaska Native, Native Hawaiian, Pacific Islander and Native tribes into one category. I understand I would want to be more critical about grouping racial identities in future analysis. I have also grouped education levels together, including Bachelors, Masters and Doctorate degree recipients. I understand there are major differences between the three and would break this down under other circumstances.</p>
 <pre class="r"><code>person_data &lt;- read_csv(&quot;rent_burden_massachusetts_v3.csv&quot;) %&gt;%
 
 mutate(EDU = case_when(
@@ -1641,22 +1645,18 @@ summary(model)</code></pre>
 <p>The multiple R-squared value for this model is 0.03515, which tells us that this model predicts about 4% of the variation in gross rent as a percentage of household income in this dataset.</p>
 <p><em>Education Level Analysis</em></p>
 <p>I am comparing education levels to the least amount of education: No High School Diploma.</p>
-<p>The coefficient estimate of EDU HS Diploma is -2.15729. This tells us that a household with someone with a high school diploma pays, on average, 2.2% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of EDU Assoc. Degree is -2.63668. This tells us that a household with someone with an associate’s degree pays, on average, 2.6% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of EDU Bach Degree is -7.53167. This tells us that a household with someone with a Bachelor’s degree or higher pays, on average, 7.5% less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model.</p>
+<p>A household with someone with a high school diploma pays, on average, 2.2 percentage points less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model. This is statistically significant at a 95-percent confidence level.</p>
+<p>A household with someone with an associate’s degree pays, on average, 2.6 percentage points less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model. This is not statistically significant at a 95-percent confidence level.</p>
+<p>A household with someone with a Bachelor’s degree or higher pays, on average, 7.5 percentage points less on rent as a percentage of household income than a household with no high school degree, controlling for the other variables in the model. This is statistically significant at a 95-percent confidence level.</p>
 <p><em>Race Analysis</em></p>
 <p>I am comparing races to the most common race in my sample set: White alone.</p>
-<p>The coefficient estimate of RACEBlack is -0.32109. This tells us that a household with at least one person who is black or African American pays, on average, 0.3% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of RACEMultiracial is -0.68149. This tells us that a household with at least one person who is biracial or multiracial pays, on average, 0.7% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of RACENative Am. is -7.97438. This tells us that a household with at least one person who is Native American, Pacific Islander, Native Alaskan or Native Hawaiian pays, on average, 8.0% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of RACEOther Race is -0.28386. This tells us that a household with at least one person who is some other race pays, on average, 0.3% less on rent as a percentage of household income than an all white household, controlling for the other variables in the model.</p>
+<p>A household with at least one person who is black or African American pays, on average, 0.3 percentage points less on rent as a percentage of household income than an all white household, controlling for the other variables in the model. This is not statistically significant at a 95-percent confidence level.</p>
+<p>A household with at least one person who is biracial or multiracial pays, on average, 0.7 percentage points less on rent as a percentage of household income than an all white household, controlling for the other variables in the model. This is not statistically significant at a 95-percent confidence level.</p>
+<p>A household with at least one person who is Native American, Pacific Islander, Native Alaskan or Native Hawaiian pays, on average, 8.0 percentage points less on rent as a percentage of household income than an all white household, controlling for the other variables in the model. This is statistically significant at a 95-percent confidence level.</p>
+<p>A household with at least one person who is some other race pays, on average, 0.3 percentage points less on rent as a percentage of household income than an all white household, controlling for the other variables in the model. This is not statistically significant at a 95-percent confidence level.</p>
 <p><em>Other Analysis</em></p>
-<p>The coefficient estimate of AGEP is -0.02735. This tells us that an increase in age by one year is associated with an average decrease in rent as a percentage of household income by 0.03%, on average, controlling for the other variables in the model.</p>
-<p>The coefficient estimate of NP is -1.83401. This tells us that as you increase the household size by one person, the rent as a percentage of household income decreases by 1.8%, on average, controlling for the other variables in the model.</p>
-<p>The variables that are statistically significant at a 95-percent confidence level:</p>
-<p>Education Level - Bachelor’s Degree or Higher Education Level - High School Diploma Race - Native American, Pacific Islander, Native Alaskan or Native Hawaiian Number of People in the household</p>
-<p>The variables that are statistically significant at a 95-percent confidence level:</p>
-<p>Education Level - Associate’s Degree Race - Black or African American Race - Two or more races Race - Some other race Age of Person in the household</p>
+<p>An increase in age by one year is associated with an average decrease in rent as a percentage of household income by 0.03 percentage points, on average, controlling for the other variables in the model. This is not statistically significant at a 95-percent confidence level.</p>
+<p>As you increase the household size by one person, the rent as a percentage of household income decreases by 1.8 percentage points, on average, controlling for the other variables in the model. This is statistically significant at a 95-percent confidence level</p>
 </div>
 </div>
 
