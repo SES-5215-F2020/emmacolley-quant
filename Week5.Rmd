@@ -1,0 +1,171 @@
+---
+title: "Week 4 Assignment"
+author: "Emma Colley"
+date: "10/01/2020"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: lumen
+---
+
+# Topic
+
+Rent Burden in Massachusetts
+
+*Examining Gross Rent as a Percentage of Household Income against four other variables*
+
+# Variables
+
+*Continuous*
+
+1. Age of Individual (AGEP)
+2. Number of People in Household (NP)
+3. Gross Household Income (HINCP)
+  
+*Categorical*
+
+1. Race/Ethnicity (RAC1P)
+2. Highest Level of Education Received (SCHL)
+
+## Loading Libraries
+
+```{r load libraries, message = FALSE}
+library(tidyverse)
+library(dbplyr)
+library(dplyr)
+library(jtools)
+library(interactions)
+library(knitr)
+```
+
+## Loading Data
+
+I am going to re-code some data into fewer categories. Please note that for the purposes of this exercise I have grouped American Indian, Alaska Native, Native Hawaiian, Pacific Islander and Native tribes into one category. I understand I would want to be more critical about grouping racial identities in future analysis. I have also grouped education levels together, including Bachelors, Masters and Doctorate degree recipients. I understand there are major differences between the three and would break this down under other circumstances. 
+
+```{r, message = FALSE}
+person_data <- read_csv("rent_burden_massachusetts_v3.csv") %>%
+
+mutate(EDU = case_when(
+    SCHL_label=="1 or more years of college credit, no degree"~"HS Diploma",
+    SCHL_label=="12th grade - no diploma"~"HS Diploma",
+    SCHL_label=="Associate's degree"~"Assoc. Degree",
+    SCHL_label=="Bachelor's degree"~"Bach Degree or Higher",
+    SCHL_label=="Doctorate degree"~"Bach Degree or Higher",
+    SCHL_label=="GED or alternative credential"~"HS Diploma",
+    SCHL_label=="Grade 10"~"1No HS",
+    SCHL_label=="Grade 11"~"1No HS",
+    SCHL_label=="Grade 1"~"1No HS",
+    SCHL_label=="Grade 2"~"1No HS",
+    SCHL_label=="Grade 3"~"1No HS",
+    SCHL_label=="Grade 4"~"1No HS",
+    SCHL_label=="Grade 5"~"1No HS",
+    SCHL_label=="Grade 6"~"1No HS",
+    SCHL_label=="Grade 7"~"1No HS",
+    SCHL_label=="Grade 8"~"1No HS",
+    SCHL_label=="Grade 9"~"1No HS",
+    SCHL_label=="Kindergarten"~"1No HS",
+    SCHL_label=="Master's degree"~"Bach Degree or Higher",
+    SCHL_label=="No schooling completed"~"1No HS",
+    SCHL_label=="Nursery school, preschool"~"1No HS",
+    SCHL_label=="Professional degree beyond a bachelor's degree"~"Bach Degree or Higher",
+    SCHL_label=="Regular high school diploma"~"HS Diploma",
+    SCHL_label=="Some college, but less than 1 year"~"HS Diploma"),
+
+RACE = case_when(
+    RAC1P_label=="American Indian alone"~"Native Am.",
+    RAC1P_label=="American Indian and Alaska Native tribes specified; or American Indian or Alaska Native, not specified and no other races"~"Native Am.",
+    RAC1P_label=="Asian alone"~"Asian",
+    RAC1P_label=="Black or African American alone"~"Black",
+    RAC1P_label=="Native Hawaiian and Other Pacific Islander alone"~"Native Am.",
+    RAC1P_label=="Some Other Race alone"~"Other Race", 
+    RAC1P_label=="Two or More Races"~"Multiracial",   
+    RAC1P_label=="White Alone"~"1White"))
+```
+
+
+## Original Linear Regression
+
+
+Below is the linear regression I ran last week. The dependent variable is Gross Rent as a Percentage of Household Income. The independant variables are education level, race. age of person and number of people in the household. 
+
+
+```{r}
+model1 <- lm(GRPIP ~ EDU + RACE + AGEP + NP, 
+            data = person_data)
+
+summary(model1)
+```
+
+## Adding A Variable.
+
+
+First, I'm going to add in an independent variable to try for a better model fit. I'm doing this at the recommendation of Catherine. I think it will be meaningful to add in Household Income. We can see that as your household income increases by $1, you pay 0.0001 percentage points less of your income on rent. This is statistically significant. By adding in this independant variable, my Multiple R-squared value increased from 0.036 to 0.247. I will keep this additional variable in further studies.
+
+
+```{r}
+model2 <- lm(GRPIP ~ HINCP + EDU + RACE + AGEP + NP, 
+            data = person_data)
+
+summary(model2)
+```
+
+
+## Converting a continuous variable to a categorical variable
+
+Maybe the percentage of income you pay on rent relates to age in more of a step-wise than a linear way because very young people in Suffolk County (25 years or younger) are spending a larger percentage of their income on rent. When I change AGEP to a categorical variable, we see that people 25 years or younger spend 2.68 percentage points of their income more on rent, as compared to people older than 25 and controlling for all other variables. 
+
+My multiple R-squared value went from 0.247 to 0.248, so no major change there.
+
+
+```{r}
+person_data <- person_data %>%
+  mutate(age_cat = case_when(AGEP <= 25 ~ "younger",
+                               AGEP > 25 ~ "older"))
+
+model3 <- lm(GRPIP ~ HINCP + EDU + RACE + age_cat + NP, 
+            data = person_data)
+
+summary(model3)
+```
+
+
+# Adding an interaction term
+
+Finally, let's add an interaction term. These past couple of weeks, I'm been hypothesizing that Race (independent variable) has an effect on Education Level (other independent variable). This could be related to systemic racial inequalities in the U.S. education system, especially higher education. Here I will try to capture that effect.
+
+
+
+
+```{r}
+model4 <- lm(GRPIP ~ HINCP + EDU + RACE + age_cat + NP +
+               EDU:RACE, 
+            data = person_data)
+
+summary(model4)
+```
+
+
+## Comparing the R-Squared Values
+
+
+Model 4 is the best fitting model. I added an independent variable, changed an independent variable from continuous to categorical and added an interaction term. The R-squared values increased *very* slightly after model 2 (when I added in another variable) but the last model is the best fitting nonetheless. 
+
+
+```{r}
+ModelFit <- tibble(model = c(1, 2, 3, 4),
+                   R_square = c(summary(model1)$adj.r.squared,
+                                summary(model2)$adj.r.squared,
+                                summary(model3)$adj.r.squared,
+                                summary(model4)$adj.r.squared))
+
+ggplot(ModelFit, aes(x = model, y = R_square)) +
+  geom_line() +
+  scale_x_continuous(name = "",
+                   breaks = breaks <- seq(1, 4, by = 1),
+                   labels = paste("Model", breaks)) +
+  scale_y_continuous(name = "Adjusted R-squared value") +
+  theme_bw()
+```
+
+
