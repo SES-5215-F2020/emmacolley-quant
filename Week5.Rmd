@@ -97,10 +97,10 @@ model1 <- lm(GRPIP ~ EDU + RACE + AGEP + NP,
 summary(model1)
 ```
 
-## Adding A Variable.
+## Adding A Variable to Improve Model Fit
 
 
-First, I'm going to add in an independent variable to try for a better model fit. I'm doing this at the recommendation of Catherine. I think it will be meaningful to add in Household Income. We can see that as your household income increases by $1, you pay 0.0001 percentage points less of your income on rent. This is statistically significant. By adding in this independant variable, my Multiple R-squared value increased from 0.036 to 0.247. I will keep this additional variable in further studies.
+First, I'm going to add in an independent variable to try for a better model fit. I'm doing this at the recommendation of Catherine. I think it will be meaningful to add in Household Income. We can see that as your household income increases by $1, you pay 0.0001 percentage points less of your income on rent. This is statistically significant. By adding in this independent variable, my Multiple R-squared value increased from 0.036 to 0.247. I will keep this additional variable in further studies.
 
 
 ```{r}
@@ -113,9 +113,10 @@ summary(model2)
 
 ## Converting a continuous variable to a categorical variable
 
-Maybe the percentage of income you pay on rent relates to age in more of a step-wise than a linear way because very young people in Suffolk County (25 years or younger) are spending a larger percentage of their income on rent. When I change AGEP to a categorical variable, we see that people 25 years or younger spend 2.68 percentage points of their income more on rent, as compared to people older than 25 and controlling for all other variables. 
 
-My multiple R-squared value went from 0.247 to 0.248, so no major change there.
+Maybe the percentage of income you pay on rent relates to age in more of a step-wise than a linear way because very young people in Suffolk County (25 years or younger) are spending a larger percentage of their income on rent. When I change AGEP to a categorical variable, we see that people 25 years or younger spend 2.68 percentage points more of their income on rent, as compared to people older than 25 and controlling for all other variables. 
+
+My multiple R-squared value went from 0.247 to 0.248, so no major change there. This is technically a better model fit but not by a signficant amount.
 
 
 ```{r}
@@ -132,14 +133,17 @@ summary(model3)
 
 # Adding an interaction term
 
-Finally, let's add an interaction term. These past couple of weeks, I'm been hypothesizing that Race (independent variable) has an effect on Education Level (other independent variable). This could be related to systemic racial inequalities in the U.S. education system, especially higher education. Here I will try to capture that effect.
 
+Finally, let's add an interaction term. I am hypothesizing that Race (independent variable) has an effect on Household Income (other independent variable) when considering how much of their income ones pays on rent. This could come from systemic racial inequalities and/or social or cultural norms. Here I will try to capture that effect.
 
+The negative and statistically significant coefficient for Household Income (HINCP) tells us that as one's income increases, they pay fewer percentage points of their household income on rent. This is controlling for all other variables. When you look at Household Income interacting with Race, the coefficients stay negative. This tells use that an income increases has less of an effect on GRPIP for all racial groups (Black, Native American, Multiracial, Other) than it does for white people, but only by a very small amount. The coefficient gets smaller in all cases, but it's not always statistically significant. 
+
+The R-squared value increases slightly from 0.248 to 0.264. This is the best fit so far.
 
 
 ```{r}
 model4 <- lm(GRPIP ~ HINCP + EDU + RACE + age_cat + NP +
-               EDU:RACE, 
+               HINCP:RACE, 
             data = person_data)
 
 summary(model4)
@@ -167,5 +171,3 @@ ggplot(ModelFit, aes(x = model, y = R_square)) +
   scale_y_continuous(name = "Adjusted R-squared value") +
   theme_bw()
 ```
-
-
