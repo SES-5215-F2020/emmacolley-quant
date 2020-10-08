@@ -80,14 +80,14 @@ RACE = case_when(
     RAC1P_label=="Native Hawaiian and Other Pacific Islander alone"~"Native Am.",
     RAC1P_label=="Some Other Race alone"~"Other Race", 
     RAC1P_label=="Two or More Races"~"Multiracial",   
-    RAC1P_label=="White Alone"~"1White"))
+    RAC1P_label=="White alone"~"1White"))
 ```
 
 
 ## Original Linear Regression
 
 
-Below is the linear regression I ran last week. The dependent variable is Gross Rent as a Percentage of Household Income. The independant variables are education level, race. age of person and number of people in the household. 
+Below is the linear regression I ran last week. The dependent variable is Gross Rent as a Percentage of Household Income. The independent variables are education level, race. age of person and number of people in the household. 
 
 
 ```{r}
@@ -100,7 +100,7 @@ summary(model1)
 ## Adding A Variable to Improve Model Fit
 
 
-First, I'm going to add in an independent variable to try for a better model fit. I'm doing this at the recommendation of Catherine. I think it will be meaningful to add in Household Income. We can see that as your household income increases by $1, you pay 0.0001 percentage points less of your income on rent. This is statistically significant. By adding in this independent variable, my Multiple R-squared value increased from 0.036 to 0.247. I will keep this additional variable in further studies.
+First, I'm going to add in an independent variable to try for a better model fit. I'm doing this at the recommendation of Catherine. I think it will be meaningful to add in Household Income. We can see that as your household income increases by $1, you pay 0.0001 percentage points less of your income on rent. This is statistically significant. By adding in this independent variable, my Multiple R-squared value increased from 0.044 to 0.267. I will keep this additional variable in further studies.
 
 
 ```{r}
@@ -114,9 +114,9 @@ summary(model2)
 ## Converting a continuous variable to a categorical variable
 
 
-Maybe the percentage of income you pay on rent relates to age in more of a step-wise than a linear way because very young people in Suffolk County (25 years or younger) are spending a larger percentage of their income on rent. When I change AGEP to a categorical variable, we see that people 25 years or younger spend 2.68 percentage points more of their income on rent, as compared to people older than 25 and controlling for all other variables. 
+Maybe the percentage of income you pay on rent relates to age in more of a step-wise than a linear way because very young people in Suffolk County (25 years or younger) are spending a larger percentage of their income on rent. When I change AGEP to a categorical variable, we see that people 25 years or younger spend 2.53 percentage points more of their income on rent, as compared to people older than 25 and controlling for all other variables. 
 
-My multiple R-squared value went from 0.247 to 0.248, so no major change there. This is technically a better model fit but not by a signficant amount.
+My multiple R-squared value went from 0.267 to 0.268, so no major change there. This is technically a better model fit but not by a significant amount.
 
 
 ```{r}
@@ -136,9 +136,11 @@ summary(model3)
 
 Finally, let's add an interaction term. I am hypothesizing that Race (independent variable) has an effect on Household Income (other independent variable) when considering how much of their income ones pays on rent. This could come from systemic racial inequalities and/or social or cultural norms. Here I will try to capture that effect.
 
-The negative and statistically significant coefficient for Household Income (HINCP) tells us that as one's income increases, they pay fewer percentage points of their household income on rent. This is controlling for all other variables. When you look at Household Income interacting with Race, the coefficients stay negative. This tells use that an income increases has less of an effect on GRPIP for all racial groups (Black, Native American, Multiracial, Other) than it does for white people, but only by a very small amount. The coefficient gets smaller in all cases, but it's not always statistically significant. 
+The negative and statistically significant coefficient for Household Income (HINCP) tells us that as one's income increases, they pay fewer percentage points of their household income on rent. This is controlling for all other variables. When you look at Household Income interacting with Race, the coefficients are a mix of positive and negative.
 
-The R-squared value increases slightly from 0.248 to 0.264. This is the best fit so far.
+Let's take Asian renters as an example. This positive and statistically significant coefficient for the interaction between this race and household income tells us that income has more of an effect on GRPIP for Asian renters than it does for White renters. As shown in the figure below, Asian renters pay a highter percentage of their income on rent.
+
+The R-squared value increases slightly from 0.268 to 0.273. This is the best fit so far.
 
 
 ```{r}
@@ -171,3 +173,16 @@ ggplot(ModelFit, aes(x = model, y = R_square)) +
   scale_y_continuous(name = "Adjusted R-squared value") +
   theme_bw()
 ```
+
+## Plotting Model 4
+
+
+```{r}
+interact_plot(model4, pred = HINCP, modx = RACE, interval = TRUE) +
+  scale_x_continuous(name = "Annual income (thousands)", limits = c(0,300000), breaks = breaks <- seq(0,300000, by = 50000), labels = paste("$", prettyNum(breaks/1000, big.mark = "'"))) +
+  scale_y_continuous(name = "Gross Rent as Percentage of HH Income", limits = c(0,50), breaks =seq(0,50, by = 10)) +
+  scale_color_discrete(name = "") +
+  scale_linetype_discrete(name = "") +
+  scale_fill_discrete(name = "")  
+```
+
